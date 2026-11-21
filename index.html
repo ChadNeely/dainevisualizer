@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Audio Visualizer</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background: #090a12;
+      }
+
+      main {
+        display: grid;
+        justify-items: center;
+        gap: 12px;
+        width: min(92vw, 540px);
+        padding: 16px 0;
+      }
+
+      #canvas-wrap {
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        line-height: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 55px rgb(0 0 0 / 55%);
+      }
+
+      #canvas-wrap canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+      }
+
+      .controls {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      button,
+      label {
+        min-height: 38px;
+        border: 1px solid rgb(255 255 255 / 18%);
+        border-radius: 8px;
+        background: rgb(255 255 255 / 8%);
+        color: white;
+        font: 600 14px/38px Inter, system-ui, sans-serif;
+        padding: 0 12px;
+        cursor: pointer;
+      }
+
+      button:hover,
+      label:hover {
+        background: rgb(255 255 255 / 14%);
+      }
+
+      input[type="file"] {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div id="canvas-wrap"></div>
+      <div class="controls">
+        <button id="play-button" type="button">Choose or play audio</button>
+        <label for="audio-upload">Upload song</label>
+        <input id="audio-upload" type="file" accept="audio/*" />
+        <label for="image-upload">Upload background</label>
+        <input id="image-upload" type="file" accept="image/*" />
+      </div>
+    </main>
+    <script src="sketch.js"></script>
+  </body>
+</html>
