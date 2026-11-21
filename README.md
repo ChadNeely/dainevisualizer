@@ -13,9 +13,6 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000`.
 
-The page can start with these optional files in the project folder:
+Place optional `background.png` and `song.mp3` files in the project folder to use them automatically.
 
-- `background.png`
-- `song.mp3`
-
-You can also use **Upload song** and **Upload background** directly in the page. Audio selected this way is local to the browser and is not uploaded anywhere.
+You can also use **Upload song** and **Upload background** directly in the page. Selected files stay in the browser and are not uploaded anywhere.
