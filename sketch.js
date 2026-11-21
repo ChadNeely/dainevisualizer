@@ -196,7 +196,7 @@ function draw() {
       const y = baseY - (row + 1) * (cellSize + cellGap);
       for (let column = 0; column < cellsAcross; column++) {
         const cellX = x + column * (cellSize + cellGap);
-        ctx.fillStyle = (row + i + column) % 5 === 0 ? "#78e6c8" : "#ffffff";
+        ctx.fillStyle = (row + i + column) % 5 === 0 ? "#91de9e" : "#eaeddf";
         ctx.fillRect(cellX, y, cellSize, cellSize);
       }
     }
