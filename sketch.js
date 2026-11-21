@@ -15,6 +15,12 @@ let source = null;
 let audio = null;
 let objectUrl = null;
 
+const background = new Image();
+background.onload = () => {
+  backgroundImage = background;
+};
+background.src = "background.png";
+
 audioUpload.addEventListener("change", (event) => {
   const file = event.target.files[0];
   if (file) loadUploadedAudio(file);
