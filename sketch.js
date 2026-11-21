@@ -179,7 +179,7 @@ function draw() {
   const barWidth = Math.min(42, width * 0.078);
   const gap = Math.min(10, width * 0.018);
   const pixelScale = width / 540;
-  const cellSize = 6 * pixelScale;
+  const cellSize = 10 * pixelScale;
   const cellGap = cellSize;
   const totalWidth = barWidth * 6 + gap * 5;
   const maxHeight = height * 0.104;
