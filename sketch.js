@@ -22,8 +22,7 @@ function resizeCanvas() {
   canvas.width = Math.round(width * dpr);
   canvas.height = Math.round(height * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
+  ctx.imageSmoothingEnabled = false;
 }
 
 const resizeObserver = new ResizeObserver(resizeCanvas);
@@ -155,6 +154,7 @@ function drawCoverImage() {
   const x = (width - drawWidth) / 2;
   const y = (height - drawHeight) / 2;
 
+  ctx.imageSmoothingEnabled = false;
   ctx.drawImage(backgroundImage, x, y, drawWidth, drawHeight);
 }
 
@@ -174,19 +174,32 @@ function draw() {
 
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
-  const baseY = height * 0.90625;
+  const baseY = height * 0.912;
   const centerX = width / 2;
-  const barWidth = Math.min(68, width * 0.11);
-  const gap = Math.min(20, width * 0.032);
+  const barWidth = Math.min(42, width * 0.078);
+  const gap = Math.min(10, width * 0.018);
+  const cellSize = Math.max(6, Math.min(10, width / 54));
+  const cellGap = 3;
   const totalWidth = barWidth * 6 + gap * 5;
-  const maxHeight = height * 0.28125;
+  const maxHeight = height * 0.104;
+  const rows = Math.floor(maxHeight / (cellSize + cellGap));
 
-  ctx.fillStyle = "#ffffff";
   for (let i = 0; i < 6; i++) {
     const sampleIndex = Math.floor(i * values.length / 6);
-    const barHeight = 12 + (values[sampleIndex] / 255) * (maxHeight - 12);
+    const activeRows = 1 + Math.round((values[sampleIndex] / 255) * (rows - 1));
     const x = centerX - totalWidth / 2 + i * (barWidth + gap);
-    ctx.fillRect(x, baseY - barHeight, barWidth, barHeight);
+    const cellsAcross = Math.max(2, Math.floor((barWidth + cellGap) / (cellSize + cellGap)));
+
+    for (let row = 0; row < rows; row++) {
+      if (row >= activeRows) continue;
+
+      const y = baseY - (row + 1) * (cellSize + cellGap);
+      for (let column = 0; column < cellsAcross; column++) {
+        const cellX = x + column * (cellSize + cellGap);
+        ctx.fillStyle = (row + i + column) % 5 === 0 ? "#78e6c8" : "#ffffff";
+        ctx.fillRect(cellX, y, cellSize, cellSize);
+      }
+    }
   }
 
   requestAnimationFrame(draw);
