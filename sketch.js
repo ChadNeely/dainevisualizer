@@ -178,8 +178,9 @@ function draw() {
   const centerX = width / 2;
   const barWidth = Math.min(42, width * 0.078);
   const gap = Math.min(10, width * 0.018);
-  const cellSize = Math.max(6, Math.min(10, width / 54));
-  const cellGap = 3;
+  const pixelScale = width / 540;
+  const cellSize = 6 * pixelScale;
+  const cellGap = cellSize;
   const totalWidth = barWidth * 6 + gap * 5;
   const maxHeight = height * 0.104;
   const rows = Math.floor(maxHeight / (cellSize + cellGap));
