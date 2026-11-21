@@ -1,6 +1,4 @@
 const canvas = document.createElement("canvas");
-canvas.width = 540;
-canvas.height = 960;
 document.querySelector("#canvas-wrap").append(canvas);
 
 const ctx = canvas.getContext("2d");
@@ -14,6 +12,23 @@ let analyser = null;
 let source = null;
 let audio = null;
 let objectUrl = null;
+
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(1, Math.round(rect.width));
+  const height = Math.max(1, Math.round(rect.height));
+
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+}
+
+const resizeObserver = new ResizeObserver(resizeCanvas);
+resizeObserver.observe(canvas);
+window.addEventListener("resize", resizeCanvas);
 
 const background = new Image();
 background.onload = () => {
@@ -74,33 +89,46 @@ async function loadUploadedAudio(file) {
   if (audio) {
     audio.pause();
   }
+  if (source) {
+    source.disconnect();
+  }
   if (objectUrl) {
     URL.revokeObjectURL(objectUrl);
   }
 
   objectUrl = URL.createObjectURL(file);
   audio = new Audio(objectUrl);
+  audio.preload = "auto";
   source = null;
-  playButton.textContent = "Loading...";
-
-  audio.addEventListener("loadeddata", async () => {
-    try {
-      await ensureAudioGraph();
-      await audio.play();
-      playButton.textContent = "Pause";
-    } catch {
-      playButton.textContent = "Play";
-    }
-  }, { once: true });
+  playButton.textContent = "Play";
 
   audio.addEventListener("error", () => {
     playButton.textContent = "Could not load audio";
   });
 }
 
+function loadDefaultAudio() {
+  audio = new Audio("song.mp3");
+  audio.preload = "auto";
+  playButton.textContent = "Play";
+
+  audio.addEventListener("error", () => {
+    playButton.textContent = "Could not load audio";
+  });
+}
+
+loadDefaultAudio();
+
 function drawFallbackBackground() {
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  const scaleX = width / 540;
+  const scaleY = height / 960;
+
+  ctx.save();
+  ctx.scale(scaleX, scaleY);
   ctx.fillStyle = "#708fd4";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, 540, 960);
 
   ctx.strokeStyle = "#5b4add";
   ctx.lineWidth = 7;
@@ -113,11 +141,26 @@ function drawFallbackBackground() {
   ctx.arc(270, 390, 55, 0, Math.PI * 2);
   ctx.arc(390, 390, 55, 0, Math.PI * 2);
   ctx.stroke();
+  ctx.restore();
+}
+
+function drawCoverImage() {
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  const imageWidth = backgroundImage.naturalWidth || backgroundImage.width;
+  const imageHeight = backgroundImage.naturalHeight || backgroundImage.height;
+  const scale = Math.max(width / imageWidth, height / imageHeight);
+  const drawWidth = imageWidth * scale;
+  const drawHeight = imageHeight * scale;
+  const x = (width - drawWidth) / 2;
+  const y = (height - drawHeight) / 2;
+
+  ctx.drawImage(backgroundImage, x, y, drawWidth, drawHeight);
 }
 
 function draw() {
   if (backgroundImage) {
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+    drawCoverImage();
   } else {
     drawFallbackBackground();
   }
@@ -129,17 +172,21 @@ function draw() {
     values.fill(0);
   }
 
-  const baseY = 870;
-  const centerX = canvas.width / 2;
-  const spacing = 12;
-  const barWidth = 9;
-  const maxHeight = 270;
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  const baseY = height * 0.90625;
+  const centerX = width / 2;
+  const barWidth = Math.min(68, width * 0.11);
+  const gap = Math.min(20, width * 0.032);
+  const totalWidth = barWidth * 6 + gap * 5;
+  const maxHeight = height * 0.28125;
 
   ctx.fillStyle = "#ffffff";
-  for (let i = 0; i < 32; i++) {
-    const height = 12 + (values[i] / 255) * (maxHeight - 12);
-    ctx.fillRect(centerX + i * spacing, baseY - height, barWidth, height);
-    ctx.fillRect(centerX - i * spacing - barWidth, baseY - height, barWidth, height);
+  for (let i = 0; i < 6; i++) {
+    const sampleIndex = Math.floor(i * values.length / 6);
+    const barHeight = 12 + (values[sampleIndex] / 255) * (maxHeight - 12);
+    const x = centerX - totalWidth / 2 + i * (barWidth + gap);
+    ctx.fillRect(x, baseY - barHeight, barWidth, barHeight);
   }
 
   requestAnimationFrame(draw);
